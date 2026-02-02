@@ -1,0 +1,388 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>PDF Comparison Service</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 900px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 12px;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+            padding: 40px;
+        }
+
+        h1 {
+            color: #333;
+            margin-bottom: 10px;
+            font-size: 32px;
+        }
+
+        .subtitle {
+            color: #666;
+            margin-bottom: 30px;
+            font-size: 16px;
+        }
+
+        .section {
+            margin-bottom: 30px;
+        }
+
+        .section-title {
+            font-size: 18px;
+            font-weight: 600;
+            color: #333;
+            margin-bottom: 15px;
+            padding-bottom: 8px;
+            border-bottom: 2px solid #667eea;
+        }
+
+        .form-group {
+            margin-bottom: 20px;
+        }
+
+        label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: 500;
+            color: #555;
+        }
+
+        label .required {
+            color: #e74c3c;
+        }
+
+        input[type="file"],
+        input[type="text"],
+        input[type="password"],
+        input[type="url"],
+        input[type="number"],
+        select {
+            width: 100%;
+            padding: 12px;
+            border: 2px solid #e0e0e0;
+            border-radius: 6px;
+            font-size: 14px;
+            transition: border-color 0.3s;
+        }
+
+        input:focus, select:focus {
+            outline: none;
+            border-color: #667eea;
+        }
+
+        .file-input-wrapper {
+            position: relative;
+            overflow: hidden;
+            display: inline-block;
+            width: 100%;
+        }
+
+        .file-input-wrapper input[type=file] {
+            position: absolute;
+            left: -9999px;
+        }
+
+        .file-label {
+            display: block;
+            padding: 12px;
+            background: #f8f9fa;
+            border: 2px dashed #667eea;
+            border-radius: 6px;
+            text-align: center;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+
+        .file-label:hover {
+            background: #e9ecef;
+            border-color: #5568d3;
+        }
+
+        .file-label.has-file {
+            background: #e7f5ff;
+            border-color: #4c6ef5;
+        }
+
+        .hint {
+            font-size: 12px;
+            color: #888;
+            margin-top: 4px;
+        }
+
+        .range-container {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+        }
+
+        input[type="range"] {
+            flex: 1;
+        }
+
+        .range-value {
+            font-weight: 600;
+            color: #667eea;
+            min-width: 40px;
+        }
+
+        #customEndpointSection {
+            margin-top: 15px;
+        }
+
+        details {
+            margin-top: 15px;
+            padding: 15px;
+            background: #f8f9fa;
+            border-radius: 6px;
+        }
+
+        summary {
+            cursor: pointer;
+            font-weight: 600;
+            color: #667eea;
+        }
+
+        .btn {
+            padding: 14px 32px;
+            font-size: 16px;
+            font-weight: 600;
+            border: none;
+            border-radius: 6px;
+            cursor: pointer;
+            transition: all 0.3s;
+            width: 100%;
+        }
+
+        .btn-primary {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+        }
+
+        .btn-primary:hover:not(:disabled) {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 20px rgba(102, 126, 234, 0.4);
+        }
+
+        .btn:disabled {
+            opacity: 0.6;
+            cursor: not-allowed;
+        }
+
+        #progressSection {
+            margin-top: 30px;
+            padding: 20px;
+            background: #f8f9fa;
+            border-radius: 8px;
+        }
+
+        .progress-bar {
+            width: 100%;
+            height: 10px;
+            background: #e0e0e0;
+            border-radius: 5px;
+            overflow: hidden;
+            margin: 15px 0;
+        }
+
+        .progress-fill {
+            height: 100%;
+            background: linear-gradient(90deg, #667eea 0%, #764ba2 100%);
+            transition: width 0.3s ease;
+            width: 0%;
+        }
+
+        .progress-text {
+            color: #555;
+            font-size: 14px;
+        }
+
+        #resultsSection {
+            margin-top: 30px;
+            padding: 20px;
+            background: #f0fdf4;
+            border: 2px solid #86efac;
+            border-radius: 8px;
+        }
+
+        .result-item {
+            margin: 10px 0;
+            padding: 10px;
+            background: white;
+            border-radius: 4px;
+        }
+
+        .result-label {
+            font-weight: 600;
+            color: #333;
+        }
+
+        .download-btn {
+            margin-top: 20px;
+            background: #10b981;
+            color: white;
+        }
+
+        .download-btn:hover {
+            background: #059669;
+        }
+
+        .hidden {
+            display: none;
+        }
+
+        .error {
+            background: #fee2e2;
+            border: 2px solid #ef4444;
+            padding: 15px;
+            border-radius: 6px;
+            color: #991b1b;
+            margin-top: 20px;
+        }
+
+        .grid-2 {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 20px;
+        }
+
+        @media (max-width: 768px) {
+            .grid-2 {
+                grid-template-columns: 1fr;
+            }
+
+            .container {
+                padding: 20px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>📄 PDF Comparison Service</h1>
+        <p class="subtitle">Compare two PDFs using AI-powered analysis</p>
+
+        <form id="comparisonForm">
+            <!-- PDF Upload Section -->
+            <div class="section">
+                <h2 class="section-title">1. Upload PDF Files</h2>
+
+                <div class="grid-2">
+                    <div class="form-group">
+                        <label>Source PDF <span class="required">*</span></label>
+                        <div class="file-input-wrapper">
+                            <input type="file" id="sourcePdf" accept=".pdf" required>
+                            <label for="sourcePdf" class="file-label" id="sourceLabel">
+                                Click to select source PDF
+                            </label>
+                        </div>
+                    </div>
+
+                    <div class="form-group">
+                        <label>Copy PDF <span class="required">*</span></label>
+                        <div class="file-input-wrapper">
+                            <input type="file" id="copyPdf" accept=".pdf" required>
+                            <label for="copyPdf" class="file-label" id="copyLabel">
+                                Click to select copy PDF
+                            </label>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- LLM Configuration Section -->
+            <div class="section">
+                <h2 class="section-title">2. Configure LLM</h2>
+
+                <div class="form-group">
+                    <label for="llmProvider">Provider <span class="required">*</span></label>
+                    <select id="llmProvider" required>
+                        <option value="openai">OpenAI</option>
+                        <option value="anthropic">Anthropic (Claude)</option>
+                        <option value="gemini">Google Gemini</option>
+                        <option value="custom">Custom Endpoint</option>
+                    </select>
+                </div>
+
+                <div class="form-group">
+                    <label for="apiKey">API Key <span class="required">*</span></label>
+                    <input type="password" id="apiKey" placeholder="sk-..." required>
+                    <p class="hint">Your API key is sent securely and not stored</p>
+                </div>
+
+                <div class="form-group">
+                    <label for="modelName">Model <span class="required">*</span></label>
+                    <input type="text" id="modelName" placeholder="gpt-4-turbo-preview" required>
+                    <p class="hint" id="modelHint">Examples: gpt-4, gpt-3.5-turbo</p>
+                </div>
+
+                <div class="form-group">
+                    <label for="temperature">Temperature: <span class="range-value" id="tempValue">0.1</span></label>
+                    <div class="range-container">
+                        <input type="range" id="temperature" min="0" max="1" step="0.1" value="0.1">
+                    </div>
+                    <p class="hint">Lower = more consistent, Higher = more creative</p>
+                </div>
+
+                <div id="customEndpointSection" class="hidden">
+                    <div class="form-group">
+                        <label for="customEndpoint">Custom Endpoint <span class="required">*</span></label>
+                        <input type="url" id="customEndpoint" placeholder="https://api.example.com/v1/chat/completions">
+                    </div>
+                </div>
+
+                <details>
+                    <summary>Advanced Options</summary>
+                    <div class="form-group" style="margin-top: 15px;">
+                        <label for="maxTokens">Max Tokens</label>
+                        <input type="number" id="maxTokens" value="4000" min="100" max="100000">
+                    </div>
+                </details>
+            </div>
+
+            <!-- Submit Button -->
+            <button type="submit" class="btn btn-primary" id="submitBtn">
+                Start Comparison
+            </button>
+        </form>
+
+        <!-- Progress Section -->
+        <div id="progressSection" class="hidden">
+            <h2 class="section-title">Processing...</h2>
+            <div class="progress-bar">
+                <div class="progress-fill" id="progressFill"></div>
+            </div>
+            <p class="progress-text" id="progressText">Initializing...</p>
+        </div>
+
+        <!-- Results Section -->
+        <div id="resultsSection" class="hidden">
+            <h2 class="section-title">Comparison Complete!</h2>
+            <div id="summaryContent"></div>
+            <button class="btn download-btn" id="downloadBtn">Download Comparison PDF</button>
+        </div>
+
+        <!-- Error Section -->
+        <div id="errorSection" class="hidden error">
+            <strong>Error:</strong> <span id="errorMessage"></span>
+        </div>
+    </div>
+
+    <script src="/static/js/app.js"></script>
+</body>
+</html>
