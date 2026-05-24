@@ -1,6 +1,6 @@
 fastapi>=0.136.1
 uvicorn[standard]>=0.47.0
-python-multipart>=0.0.28
+python-multipart>=0.0.29
 PyMuPDF>=1.27.2.3
 reportlab>=4.5.1
 pdf2image>=1.17.0
